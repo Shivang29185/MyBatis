@@ -12,15 +12,19 @@ import com.crud.util.UserUtil;
 public class UserMapper {
 
 	SqlSession session;
+	
 	public List<User> getAllUsers() {
+		List<User> users = null;
 		try {
 			session = UserUtil.getSqlSessionFactory().openSession();
-			List<User> users = session.selectList("getAllUsers");
-			session.commit();
-			return users;
-		} finally {
+			users = session.selectList("getAllUsers");
+		} catch (Exception e) {
+			System.out.println("user list not found"+ e);
+		}	
+		finally {
 			session.close();
-		}
+		}	
+		return users;
 	}
 
 	public void saveData(User user) {
@@ -28,6 +32,11 @@ public class UserMapper {
 			session = UserUtil.getSqlSessionFactory().openSession();
 			session.insert("saveUser", user);
 			session.commit();
+		} catch (Exception e) {
+			System.out.println("user not inserted"+ e);
+			if (session !=  null) {
+				session.rollback();
+			}
 		} finally {
 			session.close();
 		}
@@ -38,17 +47,23 @@ public class UserMapper {
 			session = UserUtil.getSqlSessionFactory().openSession();
 			session.delete("deleteUser", id);
 			session.commit();
+		} catch (Exception e) {
+			System.out.println("user not updated"+ e);
+			if (session != null) {
+				session.rollback();
+			}
 		} finally {
 			session.close();
 		}
 	}
 
 	public User findSingleUser(int id) {
-		User user;
+		User user = null;
 		try {
 			session = UserUtil.getSqlSessionFactory().openSession();
 			user = session.selectOne("findById", id);
-			session.commit();
+		} catch (Exception e) {
+			System.out.println("user not found"+ e);
 		} finally {
 			session.close();
 		}
@@ -60,7 +75,13 @@ public class UserMapper {
 			session = UserUtil.getSqlSessionFactory().openSession();
 			session.update("updateUser", user);
 			session.commit();
+		} catch (Exception e) {
+			System.out.println("user not updated"+ e);
+			if (session != null) {
+				session.rollback();
+			}
 		} finally {
+			
 			session.close();
 		}
 	}
